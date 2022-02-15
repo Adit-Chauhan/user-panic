@@ -42,10 +42,10 @@
 //! then you need to create the [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html) make sure userpanic is present in both dependencies and build dependencies in cargo.toml file
 //! ```toml
 //! [dependencies]
-//! userpanic = "0.1.0"
+//! user-panic = "0.1.0"
 //!
 //! [build-dependencies]
-//! userpanic = "0.1.0"
+//! user-panic = "0.1.0"
 //! ```
 //! and make build.rs file as follows
 //! ```
@@ -113,7 +113,7 @@ impl fmt::Display for UserPanic {
                 if inst.len() > 1 {
                     let mut j = 1;
                     for ii in inst {
-                        s += &format!("\t\t{}.  {}\n", j, ii);
+                        s += &format!("\t\t{}. {}\n", j, ii);
                         j += 1;
                     }
                 }
@@ -155,7 +155,7 @@ fn panic_func(panic_info: &PanicInfo, original: &Panicfn) {
 // Returns the auto generated rust code
 fn read_from_yml(yaml: String) -> String {
     debug!("Started Reading the yaml string");
-    let mut file = "use userpanic::UserPanic;\n".to_string();
+    let mut file = "use user_panic::UserPanic;\n".to_string();
     let yaml = YamlLoader::load_from_str(&yaml).unwrap();
     let structs = &yaml[0];
     if let Yaml::Hash(hash) = structs {
@@ -236,10 +236,10 @@ fn get_err_msg(hash: &Yaml) -> String {
 /// Only yaml file path or both yaml and output rust file can be provided
 macro_rules! panic_setup {
     ($file_path:expr) => {
-        userpanic::panic_setup_function($file_path, "src/panic_structs.rs");
+        user_panic::panic_setup_function($file_path, "src/panic_structs.rs");
     };
     ($file_path:expr,$file_out:expr) => {
-        userpanic::panic_setup_function($file_path, $file_out);
+        user_panic::panic_setup_function($file_path, $file_out);
     };
 }
 /// Not intended to be used directly and to be called by panic_setup! macro
@@ -288,6 +288,17 @@ bar:
     message: This is un fixable error
 ";
         let s = read_from_yml(s.to_string());
-        assert_eq!("use userpanic::UserPanic;\npub const foo:UserPanic = UserPanic {error_msg:\"this is the main error\",fix_instructions:Some(&[&[\"first\",\"in first\",\"in first second\"],&[\"second\",\"second first\",\"second second\"],&[\"third\"],]),};pub const bar:UserPanic = UserPanic {error_msg:\"This is un fixable error\",fix_instructions: None,};", s);
+        assert_eq!("use user_panic::UserPanic;\npub const foo:UserPanic = UserPanic {error_msg:\"this is the main error\",fix_instructions:Some(&[&[\"first\",\"in first\",\"in first second\"],&[\"second\",\"second first\",\"second second\"],&[\"third\"],]),};pub const bar:UserPanic = UserPanic {error_msg:\"This is un fixable error\",fix_instructions: None,};", s);
+    }
+
+    #[test]
+    fn output_string_fixable() {
+        const ERR: UserPanic = UserPanic {
+            error_msg: "Error msg",
+            fix_instructions: Some(&[&["One"], &["two", "two-one", "two-two"], &["Three"]]),
+        };
+        let s = format!("{}", ERR);
+        let manual = "The Program Crashed\n\nError: Error msg\nIt seems like an error that can be fixed by you!\nPlease follow the following instructions to try and fix the Error\n\n\t1: One\n\n\t2: two\n\t\t1. two-one\n\t\t2. two-two\n\n\t3: Three\n";
+        assert_eq!(s, manual);
     }
 }
