@@ -7,7 +7,7 @@ description = "Rust Library Crate for Helpful Error messages"
 license = "MIT"
 repository= "https://github.com/Adit-Chauhan/user-panic"
 readme = "README.md"
-keywords = ["panic","panic handler","yaml","build scripts"]
+keywords = ["panic","panic-handler","yaml","build-scripts"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
