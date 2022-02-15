@@ -301,4 +301,15 @@ bar:
         let manual = "The Program Crashed\n\nError: Error msg\nIt seems like an error that can be fixed by you!\nPlease follow the following instructions to try and fix the Error\n\n\t1: One\n\n\t2: two\n\t\t1. two-one\n\t\t2. two-two\n\n\t3: Three\n";
         assert_eq!(s, manual);
     }
+
+    #[test]
+    fn output_string_unfixable() {
+        const ERR: UserPanic = UserPanic {
+            error_msg: "Unfixable Error",
+            fix_instructions: None,
+        };
+        let s = format!("{}", ERR);
+        let manual = "The Program Crashed\n\nError: Unfixable Error\nIt seems like an error that can't be fixed by you!\nPlease submit a Bug report to Developer\n";
+        assert_eq!(s, manual);
+    }
 }
